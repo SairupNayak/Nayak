@@ -41,6 +41,8 @@ if selected_tab == "Stock Price Viewer":
             adj_close = data["Adj Close"]
         else:
             adj_close = data["Close"]
+            
+        latest_close = adj_close.iloc[-1].to_dict()
 
         # Plot
         df_plot = adj_close.reset_index().melt(id_vars="Date", var_name="tickers", value_name="Price")
@@ -120,10 +122,14 @@ elif selected_tab == "Portfolio Optimization":
             st.error("Please enter at least 1 ticker.")
         else:
             data = yf.download(tickers, start="2020-01-01", end=end_date)
+
             if "Adj Close" in data.columns.get_level_values(-1):
                 adj_close = data["Adj Close"]
             else:
                 adj_close = data["Close"]
+
+            # Get latest close price mapped by ticker
+            latest_close = adj_close.iloc[-1].to_dict()
 
             returns = adj_close.pct_change().dropna()
             mean_returns = returns.mean()
@@ -148,12 +154,20 @@ elif selected_tab == "Portfolio Optimization":
             max_sharpe_idx = np.argmax(results[2])
             best_weights = weights_record[max_sharpe_idx]
 
+            # Build portfolio table
             best_portfolio = pd.DataFrame({
                 "Ticker": tickers,
                 "Allocation (%)": np.round(best_weights * 100, 2),
                 "Amount (₹)": np.round(best_weights * investment, 2),
-                "Closed": adj_close.iloc[-1].values
-            }).sort_values(by="Allocation (%)", ascending=False).reset_index(drop=True)
+            })
+
+            # Correct Close price mapping by ticker
+            best_portfolio["Close (₹)"] = best_portfolio["Ticker"].map(latest_close)
+
+            # Sort portfolio based on allocation
+            best_portfolio = best_portfolio.sort_values(
+                by="Allocation (%)", ascending=False
+            ).reset_index(drop=True)
 
             st.subheader("Optimal Portfolio Allocation (Max Sharpe)")
             st.dataframe(best_portfolio, use_container_width=True)
@@ -305,4 +319,5 @@ elif selected_tab == "Tax & Inflation Adjusted Returns":
         **Expected Annual Return:** {expected_return:.2f}%  
 
         """)
+
 
