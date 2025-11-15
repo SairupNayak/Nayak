@@ -152,7 +152,7 @@ elif selected_tab == "Portfolio Optimization":
                 "Ticker": tickers,
                 "Allocation (%)": np.round(best_weights * 100, 2),
                 "Amount (₹)": np.round(best_weights * investment, 2),
-                "Closed": adj_close
+                "Closed": adj_close.iloc[-1].values
             }).sort_values(by="Allocation (%)", ascending=False).reset_index(drop=True)
 
             st.subheader("Optimal Portfolio Allocation (Max Sharpe)")
@@ -305,3 +305,4 @@ elif selected_tab == "Tax & Inflation Adjusted Returns":
         **Expected Annual Return:** {expected_return:.2f}%  
 
         """)
+
