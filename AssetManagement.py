@@ -151,7 +151,8 @@ elif selected_tab == "Portfolio Optimization":
             best_portfolio = pd.DataFrame({
                 "Ticker": tickers,
                 "Allocation (%)": np.round(best_weights * 100, 2),
-                "Amount (₹)": np.round(best_weights * investment, 2)
+                "Amount (₹)": np.round(best_weights * investment, 2),
+                "Closed": adj_close
             }).sort_values(by="Allocation (%)", ascending=False).reset_index(drop=True)
 
             st.subheader("Optimal Portfolio Allocation (Max Sharpe)")
@@ -302,4 +303,5 @@ elif selected_tab == "Tax & Inflation Adjusted Returns":
         **Effective Real Annual Return:** {real_return_rate * 100:.2f}%  
         **Investment Period:** {years} years  
         **Expected Annual Return:** {expected_return:.2f}%  
+
         """)
